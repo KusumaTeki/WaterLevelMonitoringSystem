@@ -14,7 +14,7 @@ let transporter = nodemailer.createTransport({
 });
 
 const sendEmail = expressAsyncHandler(async (req, res) => {
-    const email = "hilevok381@nozamas.com"
+    const email = "cesadi4378@kazvi.com"
     const subject = "Test Mail after 90%"
     const message = "This is a successful test mail please ignore."
 //   const { email, subject, message } = req.body;

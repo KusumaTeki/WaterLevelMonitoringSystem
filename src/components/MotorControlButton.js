@@ -4,14 +4,14 @@ import { ref, set } from "firebase/database";
 
 const MotorControlButton = ({ motorStatus }) => {
   const toggleMotor = () => {
-    const newStatus = motorStatus === "off" ? "on" : "off";
-    set(ref(database, "main/motor_control"), newStatus);
+    const newStatus = motorStatus === 0 ? 1 : 0;
+    set(ref(database, "main/valve"), newStatus);
   };
 
   return (
     <div>
-      <button onClick={toggleMotor}>
-        {motorStatus === "off" ? "Turn Motor On" : "Turn Motor Off"}
+      <button className="motor-btn" onClick={toggleMotor}>
+        {motorStatus === 0 ? "Turn Motor On" : "Turn Motor Off"}
       </button>
     </div>
   );

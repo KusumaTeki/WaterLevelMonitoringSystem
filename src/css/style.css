@@ -56,3 +56,20 @@ body {
     margin: 0;
     padding: 0;
   }
+
+  .motor-btn {
+    padding: 10px 20px;
+    margin-top: 20px;
+    background-color: #ff3300;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .motor-btn:hover {
+    background-color: #cc2900;
+  }
+  

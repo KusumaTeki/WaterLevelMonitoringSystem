@@ -1,0 +1,80 @@
+/* PurityGauge.css */
+
+/* Reuse common gauge styles for flow, purity, and water level */
+.gauge {
+    position: relative;
+    width: 150px;
+    height: 150px;
+  }
+  
+  .waterFlowGauge, .waterLevelGauge, .purityGauge {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  
+  .waterFlowGauge-bg, .waterLevelGauge-bg, .purityGauge-bg {
+    fill: none;
+    stroke: #e6e6e6;
+    stroke-width: 3;
+  }
+  
+  .waterFlowGauge-fill, .waterLevelGauge-fill, .purityGauge-fill {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dasharray 1s ease-out;
+  }
+  
+  .waterFlowGauge-percentage, .waterLevelGauge-percentage, .purityGauge-percentage {
+    font-size: 18px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    fill: #000;
+  }
+  
+  .waterFlowGauge-label, .waterLevelGauge-label, .purityGauge-label {
+    font-size: 16px;
+    color: #333;
+    margin-top: 10px;
+  }
+  
+  .notification-bar {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    text-align: center;
+  }
+  
+  .notification-bar.green {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .notification-bar.lightgreen {
+    background-color: #81c784;
+    color: black;
+  }
+  
+  .notification-bar.yellow {
+    background-color: #ffeb3b;
+    color: black;
+  }
+  
+  .notification-bar.orange {
+    background-color: #ff9800;
+    color: black;
+  }
+  
+  .notification-bar.red {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .gauges-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+  

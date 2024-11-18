@@ -1,127 +1,8 @@
-// import React, { useState, useEffect } from "react";
-// import "./css/style.css";
-// import Canvas from "./components/canvas";
-// import { database } from "./components/firebase";
-// import { ref, onValue } from "firebase/database";
-// import WaterLevelGauge from "./components/WaterLevelGauge";
-// import WaterQualityGauge from "./components/WaterQualityGauge";
-// import { processWaterQuality } from "./components/processWaterQuality";
-
-
-
-// const App = () => {
-//   const [distance, setDistance] = useState(0);
-//   const [volume, setVolume] = useState(0);
-//   const [quality, setQuality] = useState(0);
-//   const [waterLevel, setWaterLevel] = useState(0); // To store the water level value from Firebase
-//   const [tdsValue, setTdsValue] = useState(0);
-
-//   useEffect(() => {
-//     const distanceRef = ref(database, "main/sensor1/value");
-//     const volumeRef = ref(database, "main/sensor2/value");
-//     const qualityRef = ref(database, "main/sensor3/value");
-//     const waterLevelRef = ref(database, "main/sensor4/value"); // Assuming sensor4 tracks water level
-//     const tdsRef = ref(database, "main/sensor3/value"); // Adjust path based on your Firebase structure
-//     const waterQualityRef = ref(database, "waterQuality");
-
-
-
-//     const unsubscribeDistance = onValue(distanceRef, (snapshot) => {
-//       const value = snapshot.val();
-//       setDistance(value ? value.toFixed(2) : "0.00");
-//     });
-
-//     const unsubscribeVolume = onValue(volumeRef, (snapshot) => {
-//       const value = snapshot.val();
-//       setVolume(value ? value.toFixed(2) : "0.00");
-//     });
-
-//     const unsubscribeQuality = onValue(qualityRef, (snapshot) => {
-//       const value = snapshot.val();
-//       setQuality(value ? value.toFixed(2) : "0.00");
-//     });
-
-//     const unsubscribeWaterLevel = onValue(waterLevelRef, (snapshot) => {
-//       const value = snapshot.val();
-//       setWaterLevel(value ? value.toFixed(2) : "0.00");
-//     });
-
-//     const unsubscribeTDS = onValue(tdsRef, (snapshot) => {
-//       const value = snapshot.val();
-//       setTdsValue(value ? value.toFixed(2) : "0.00");
-//     });
-
-//     const unsubscribeWaterQuality = onValue(waterQualityRef, (snapshot) => {
-//       const data = snapshot.val();
-//       if (data) {
-//         // Process each link and extract pH and turbidity values
-//         const entries = Object.values(data).map((link) => ({
-//           pH: link.pH,
-//           turbidity: link.turbidity,
-//         }));
-  
-//         processWaterQuality(entries);
-//       }
-//     });
-
-
-//     return () => {
-//       unsubscribeDistance();
-//       unsubscribeVolume();
-//       unsubscribeQuality();
-//       unsubscribeWaterLevel();
-//       unsubscribeTDS();
-//       unsubscribeWaterQuality();
-//     };
-//   }, []);
-
-//   return (
-//     <>
-//       <div className="appContainer">
-//         <h1>Water Level Monitoring System</h1>
-//         <div className="container">
-//           <div className="levelBox">
-//             <Canvas title="Water Depth" value={distance} unit="cm" />
-//           </div>
-//           <div className="levelBox">
-//             <Canvas title="Water flowrate" value={volume} unit="LitperHour" />
-//           </div>
-//           <div className="levelBox">
-//             <Canvas title="Water Quality" value={quality} unit="TDS" />
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* <WaterLevelGauge waterLevel={waterLevel} /> */}
-
-//       <div className="appContainer">
-//       {/* <h1>Dashboard</h1> */}
-//       <div className="container">
-//         <div className="levelBox">
-//           <h3>Water Level</h3>
-//           <WaterLevelGauge waterLevel={waterLevel} />
-//         </div>
-//         <div className="levelBox">
-//           <h3>Water Quality</h3>
-//           {/* <WaterQualityGauge quality={quality} /> */}
-//           {/* <WaterQualityGauge tdsValue={tdsValue} /> */}
-//         </div>
-        
-//       </div>
-//     </div>
-
-//     </>
-//   );
-// };
-
-// export default App;
-
-
 import React, { useState, useEffect } from "react";
-import "./css/style.css"
+import "./css/style.css";
 import WaterLevelGauge from "./components/WaterLevelGauge";
 import WaterFlowGauge from "./components/WaterFlowGauge";
-import PurityGauge from "./components/PurityGauge";
+import PurityGauge from "./components/PurityGauge"; // Assuming this displays the purity and safety level
 import FlowRateGauge from "./components/FlowRateGauge";
 import MotorControlButton from "./components/MotorControlButton";
 import { database } from "./components/firebase"; // Firebase import
@@ -132,18 +13,28 @@ const App = () => {
   const [sensorData, setSensorData] = useState({
     depth: 0,
     flow: 0,
-    purity: 10,
+    purity: 10, // Initialize with a default value (PPM)
     rate: 0,
-    motorStatus: "off",
+    motorStatus: 1,
+    safetyLevel: "Safe", // Added safety level state
   });
+
+  // Function to determine safety level based on purity (PPM) values
+  const calculateSafetyLevel = (ppm) => {
+    if (ppm <= 300) return "Safe";
+    if (ppm <= 600) return "Moderate";
+    if (ppm <= 1000) return "Poor";
+    return "Unsafe";
+  };
 
   // Fetch data from Firebase in real time
   useEffect(() => {
     const sensor1Ref = ref(database, "main/sensor1/value");
     const sensor2Ref = ref(database, "main/sensor2/value");
-    const sensor3Ref = ref(database, "main/sensor3/value");
+    const sensor3Ref = ref(database, "main/sensor3/value"); // Purity or TDS values
     const sensor4Ref = ref(database, "main/sensor4/value");
-    const motorRef = ref(database, "main/motor_control");
+    // const motorRef = ref(database, "main/motor_control");
+    const motorRef = ref(database, "main/valve");
 
     const unsubscribeSensor1 = onValue(sensor1Ref, (snapshot) => {
       setSensorData((prev) => ({ ...prev, depth: snapshot.val() }));
@@ -152,7 +43,11 @@ const App = () => {
       setSensorData((prev) => ({ ...prev, flow: snapshot.val() }));
     });
     const unsubscribeSensor3 = onValue(sensor3Ref, (snapshot) => {
-      setSensorData((prev) => ({ ...prev, purity: snapshot.val() }));
+      const purityValue = snapshot.val();
+      setSensorData((prev) => {
+        const safetyLevel = calculateSafetyLevel(purityValue); // Calculate safety level based on purity
+        return { ...prev, purity: purityValue, safetyLevel };
+      });
     });
     const unsubscribeSensor4 = onValue(sensor4Ref, (snapshot) => {
       setSensorData((prev) => ({ ...prev, rate: snapshot.val() }));
@@ -171,33 +66,68 @@ const App = () => {
     };
   }, []);
 
+  // Function to round values to 2 decimals
+  const roundToTwoDecimals = (value) => {
+    return parseFloat(value).toFixed(2);
+  };
+
   return (
     <>
-    <div className="appContainer">      
-      <h1>Water Monitoring System</h1>
-      <div className="gauge-container">
-        <WaterLevelGauge value={sensorData.depth} />
-        <WaterFlowGauge value={sensorData.flow} />
-        <PurityGauge value={sensorData.purity} />
-        <FlowRateGauge value={sensorData.rate} />
-      </div>
-      <MotorControlButton motorStatus={sensorData.motorStatus} />
-    </div>
-    
-    <div className="appContainer">
+      {/* <div className="appContainer">
+        <h1>Water Monitoring System</h1>
+        <div className="gauge-container">
+          <WaterLevelGauge value={roundToTwoDecimals(sensorData.depth)} />
+          <WaterFlowGauge value={roundToTwoDecimals(sensorData.flow)} />
+          <PurityGauge
+            value={roundToTwoDecimals(sensorData.purity)}
+            safetyLevel={sensorData.safetyLevel}
+          />{" "}
+          <FlowRateGauge value={roundToTwoDecimals(sensorData.rate)} />
+        </div>
+        <MotorControlButton motorStatus={sensorData.motorStatus} />
+      </div> */}
+
+      <div className="appContainer">
          <h1>Water Level Monitoring System</h1>
          <div className="container">
            <div className="levelBox">
-             <Canvas title="Water Depth" value={sensorData.depth} unit="cm" />
+             <Canvas title="Water Depth" value={roundToTwoDecimals(sensorData.depth)} unit="cm" />
            </div>
            <div className="levelBox">
-             <Canvas title="Water flowrate" value={sensorData.flow} unit="LitperHour" />
+             <Canvas title="Water flowrate" value={roundToTwoDecimals(sensorData.flow)} unit="LitperHour" />
            </div>
            <div className="levelBox">
-             <Canvas title="Water Quality" value={sensorData.purity} unit="TDS" />
+             <Canvas title="Water Quality" value={roundToTwoDecimals(sensorData.purity)} unit="TDS" />
            </div>
          </div>
        </div>
+
+      <div className="appContainer">
+        {/* <h1>Dashboard</h1> */}
+        <div className="container">
+          <div className="levelBox">
+            <h3>Water Level</h3>
+            <WaterLevelGauge value={roundToTwoDecimals(sensorData.depth)} />
+          </div>
+          <div className="levelBox">
+            <h3>Water Flow</h3>
+            <WaterFlowGauge value={roundToTwoDecimals(sensorData.flow)} />
+          </div>
+          <div className="levelBox">
+            <h3>Water Purity</h3>
+            <PurityGauge
+              value={roundToTwoDecimals(sensorData.purity)}
+              safetyLevel={sensorData.safetyLevel}
+            />{" "}
+            {/* Pass rounded purity */}
+          </div>
+          {/* <div className="levelBox">
+            <h3>Water Flow Rate</h3>
+            <FlowRateGauge value={roundToTwoDecimals(sensorData.rate)} />
+          </div> */}
+        </div>
+          <MotorControlButton motorStatus={sensorData.motorStatus} />
+      </div>
     </>
   );
 };
