@@ -1,0 +1,71 @@
+.qualityGauge-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+  }
+  
+  .qualityGauge {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .qualityGauge-bg {
+    fill: none;
+    stroke: #f3f3f3;
+    stroke-width: 2;
+  }
+  
+  .qualityGauge-fill {
+    fill: none;
+    stroke: #00b300;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+  
+  .critical {
+    stroke: #ff0000;
+  }
+  
+  .qualityGauge-percentage {
+    font-size: 0.3rem;
+    fill: #000;
+    text-anchor: middle;
+  }
+  
+  .qualityGauge-label {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .notification-bar {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    width: 80%;
+  }
+  
+  .notification-bar.green {
+    background-color: #e6ffe6;
+    color: #008000;
+  }
+  
+  .notification-bar.blue {
+    background-color: #e6f3ff;
+    color: #0000ff;
+  }
+  
+  .notification-bar.orange {
+    background-color: #fff4e6;
+    color: #ff8000;
+  }
+  
+  .notification-bar.red {
+    background-color: #ffe6e6;
+    color: #ff0000;
+  }
+  

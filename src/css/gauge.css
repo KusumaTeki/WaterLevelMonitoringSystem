@@ -1,0 +1,33 @@
+.gauge {
+    margin: 10px;
+    width: 200px;
+    height: 200px;
+    display: inline-block;
+  }
+  
+  .waterGauge {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+  }
+  
+  .waterGauge-bg {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 3;
+  }
+  
+  .waterGauge-fill {
+    fill: none;
+    stroke: #00f;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 0, 100;
+  }
+  
+  .waterGauge-percentage {
+    font-size: 10px;
+    text-anchor: middle;
+    fill: black;
+  }
+  

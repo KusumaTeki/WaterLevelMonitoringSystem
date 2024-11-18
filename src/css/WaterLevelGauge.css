@@ -1,0 +1,163 @@
+/* General Reset and Body Styling */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #e9ecef;
+}
+.waterGauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.waterGauge {
+  width: 200px; /* Set fixed width for clarity */
+  height: auto; /* Maintain aspect ratio */
+  transform: rotate(-90deg); /* Rotate the gauge */
+}
+
+.waterGauge-bg {
+  fill: none;
+  stroke: #e6e6e6;
+  stroke-width: 3.8;
+}
+
+.waterGauge-fill {
+  fill: none;
+  stroke: #1d4672; /* Default blue color for water */
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s ease, stroke 0.5s ease;
+}
+
+.waterGauge-fill.critical {
+  stroke: #ff3300; /* Red color for critical level */
+}
+
+
+.waterGauge-percentage {
+  font-size: 0.5em; /* Adjust size based on circle dimensions */
+  text-anchor: middle; /* Horizontally center the text */
+  fill: #333; /* Dark color for text */
+  font-weight: bold;
+  dominant-baseline: middle; /* Vertically center the text */
+}
+
+.waterGauge-label {
+  font-size: 1rem;
+  margin-top: 10px;
+  color: #666;
+}
+
+
+@media (min-width: 768px) {
+  .waterGauge-label {
+    font-size: 24px;
+  }
+
+  .waterGauge-percentage {
+    font-size: 0.5em;
+  }
+}
+
+/* App-Level Styling */
+.appContainer {
+  text-align: center;
+  padding: 40px;
+}
+
+.appContainer h1 {
+  color: #343a40;
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.appContainer .container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  margin: 40px 0;
+}
+
+.appContainer .levelBox {
+  width: 30%;
+  padding: 20px;
+  border: 2px solid #007BFF;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.appContainer .levelBox:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.appContainer h3 {
+  margin-bottom: 15px;
+  color: #007BFF;
+  font-size: 1.5rem;
+}
+
+.appContainer .valueDisplay {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #343a40;
+  margin-top: 10px;
+}
+
+.appContainer p {
+  margin: 0;
+  padding: 0;
+}
+
+
+
+
+
+.notification-bar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 10px;
+  color: white;
+  font-weight: bold;
+  transition: top 0.3s ease-in-out;
+  z-index: 10;
+}
+
+.notification-bar.green {
+  background-color: #28a745;
+}
+
+.notification-bar.orange {
+  background-color: #ff9800;
+}
+
+.notification-bar.red {
+  background-color: #ff3300;
+}
+
+.toggle-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.toggle-button.active {
+  background-color: #ff3300;
+  color: white;
+}
+
+.toggle-button.inactive {
+  background-color: #28a745;
+  color: white;
+}
