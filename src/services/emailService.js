@@ -1,11 +1,12 @@
 const baseUrl = "http://localhost:8000";
 
-export const sendEmail = async () => {
+export const sendEmail = async (subject,message) => {
   // Replace these with actual values or keep them static as placeholders
   let dataSend = {
-    email: "tekikusuma1622@gmail.com", // Replace with actual email
-    subject: "Test Subject", // Replace with actual subject
-    message: "This is a test message", // Replace with actual message
+    // email: "jayasriteki@gmail.com", // Replace with actual email
+    email: "dewahov390@nozamas.com", // Replace with actual email
+    subject: subject, // Replace with actual subject
+    message: message, // Replace with actual message
     // body: `The water level has exceeded 90% (${value} cm out of ${maxDepth} cm), and the motor has been turned off.`,
 
   };

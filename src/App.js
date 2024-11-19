@@ -70,6 +70,8 @@ const App = () => {
   const roundToTwoDecimals = (value) => {
     return parseFloat(value).toFixed(2);
   };
+  const totalDepth = 9;
+  const waterLevel = totalDepth - sensorData.depth;
 
   return (
     <>
@@ -91,7 +93,7 @@ const App = () => {
          <h1>Water Level Monitoring System</h1>
          <div className="container">
            <div className="levelBox">
-             <Canvas title="Water Depth" value={roundToTwoDecimals(sensorData.depth)} unit="cm" />
+             <Canvas title="Water Depth" value={roundToTwoDecimals(waterLevel)} unit="cm" />
            </div>
            <div className="levelBox">
              <Canvas title="Water flowrate" value={roundToTwoDecimals(sensorData.flow)} unit="LitperHour" />
@@ -107,7 +109,8 @@ const App = () => {
         <div className="container">
           <div className="levelBox">
             <h3>Water Level</h3>
-            <WaterLevelGauge value={roundToTwoDecimals(sensorData.depth)} />
+            <WaterLevelGauge value={roundToTwoDecimals(waterLevel)} />
+            {/* <WaterLevelGauge value={roundToTwoDecimals(sensorData.depth)} /> */}
           </div>
           <div className="levelBox">
             <h3>Water Flow</h3>

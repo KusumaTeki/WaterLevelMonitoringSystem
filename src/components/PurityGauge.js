@@ -1,72 +1,79 @@
 import React, { useEffect, useState } from "react";
-import "../css/Purity.css"; // Custom CSS for purity gauge
+import "../css/WaterLevelGauge.css";
+import "../css/style.css";
+import { sendEmail } from "../services/emailService";
 
-const PurityGauge = ({ ppmValue }) => {
-  const [purityStatus, setPurityStatus] = useState("Excellent");
-  const [notification, setNotification] = useState({ message: "", color: "green" });
+const PurityGauge = ({ value, safetyLevel }) => {
+  const [notification, setNotification] = useState({
+    message: "",
+    color: "green",
+  });
 
-  // Determine water purity status based on PPM
-  const getPurityStatus = (ppm) => {
-    if (ppm <= 50) {
-      return { status: "Excellent", color: "green" };
-    } else if (ppm <= 100) {
-      return { status: "Good", color: "lightgreen" };
-    } else if (ppm <= 200) {
-      return { status: "Average", color: "yellow" };
-    } else if (ppm <= 400) {
-      return { status: "Poor", color: "orange" };
-    } else {
-      return { status: "Very Poor", color: "red" };
-    }
-  };
+  // const maxPurity = 150; // Assuming purity is measured as a percentage
+  // const levelPercentage = Math.min(100, (value / maxPurity) * 100); // Gauge percentage
 
-  // Update purity status and notification based on PPM
+  const minTDS = 0;
+  const maxTDS = 1200;
+
+  // Calculate purity percentage
+  const levelPercentage = Math.max(
+    0,
+    Math.min(((maxTDS - value) / (maxTDS - minTDS)) * 100, 100)
+  ).toFixed(2); // Clamp to [0, 100] and round to 2 decimal places
+
+
   useEffect(() => {
-    const { status, color } = getPurityStatus(ppmValue);
-    setPurityStatus(status);
-    setNotification({ message: `Water Purity: ${status}`, color: color });
-  }, [ppmValue]);
+    if (value < safetyLevel) {
+      setNotification({
+        message: "Water purity is below the safety level!",
+        color: "red",
+      });
+      sendEmail(
+        "Purity Alert",
+        `Water purity has dropped to ${value}%, which is below the safety level of ${safetyLevel}%.`
+      );
+    } else {
+      setNotification({
+        message: "Water purity is within safe limits.",
+        color: "green",
+      });
+    }
+  }, [value, safetyLevel]);
 
-  // Function to display the purity level percentage
-  const getPurityPercentage = () => {
-    if (ppmValue <= 50) return 100;
-    if (ppmValue <= 100) return 80;
-    if (ppmValue <= 200) return 60;
-    if (ppmValue <= 400) return 40;
-    return 20;
+  const roundToTwoDecimals = (value) => {
+    return parseFloat(value).toFixed(2); // Ensures two decimals
   };
 
   return (
-    <div className="purityGauge-container">
+    <>
+      <div className="water-level-monitor">
       <div className="gauge">
-        <svg className="purityGauge" viewBox="0 0 36 36">
-          <path
-            className="purityGauge-bg"
-            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-          />
-          <path
-            className={`purityGauge-fill ${notification.color}`}
-            strokeDasharray={`${getPurityPercentage()}, 100`}
-            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-          />
-          <text
-            x="18"
-            y="20.35"
-            className="purityGauge-percentage"
-            transform="rotate(90 18 18)"
-          >
-            {`${getPurityPercentage()}%`}
-          </text>
-        </svg>
-      </div>
+        <svg viewBox="0 0 36 36" className="circular-chart blue">
+           <path
+              className="waterGauge-bg"
+              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+            />
+            <path
+              className={`gauge-fill ${
+                value < safetyLevel ? "critical" : ""
+              }`}
+              strokeDasharray={`${levelPercentage}, 100`}
+              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+            />
+            <text x="18" y="20.35" className="percentage">
+            {`${roundToTwoDecimals(levelPercentage)}%`}
+            </text>
+          </svg>
+        </div>
 
-      <div id="notification-bar" className={`notification-bar ${notification.color}`}>
-        {notification.message}
+        {/* <div id="notification-bar" className={`notification-bar ${notification.color}`}>
+          {notification.message}
+        </div> */}
+        <p className="purityGauge-label">Water Purity</p>
       </div>
-
-      <p className="purityGauge-label">Water Purity Level</p>
-    </div>
+    </>
   );
 };
 
 export default PurityGauge;
+
