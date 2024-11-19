@@ -23,3 +23,4 @@ const MotorControlButton = ({ motorStatus }) => {
 };
 
 export default MotorControlButton;
+

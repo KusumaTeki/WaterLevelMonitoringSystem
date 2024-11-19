@@ -23,23 +23,23 @@ const PurityGauge = ({ value, safetyLevel }) => {
   // ).toFixed(2); // Clamp to [0, 100] and round to 2 decimal places
 
 
-  useEffect(() => {
-    if (value < safetyLevel) {
-      // setNotification({
-      //   message: "Water purity is below the safety level!",
-      //   color: "red",
-      // });
-      // sendEmail(
-      //   "Purity Alert",
-      //   `Water purity has dropped to ${value}%, which is below the safety level of ${safetyLevel}%.`
-      // );
-    } else {
-      // setNotification({
-      //   message: "Water purity is within safe limits.",
-      //   color: "green",
-      // });
-    }
-  }, [value, safetyLevel]);
+  // useEffect(() => {
+  //   if (value < safetyLevel) {
+  //     // setNotification({
+  //     //   message: "Water purity is below the safety level!",
+  //     //   color: "red",
+  //     // });
+  //     // sendEmail(
+  //     //   "Purity Alert",
+  //     //   `Water purity has dropped to ${value}%, which is below the safety level of ${safetyLevel}%.`
+  //     // );
+  //   } else {
+  //     // setNotification({
+  //     //   message: "Water purity is within safe limits.",
+  //     //   color: "green",
+  //     // });
+  //   }
+  // }, [value, safetyLevel]);
 
   
 
@@ -48,26 +48,27 @@ const PurityGauge = ({ value, safetyLevel }) => {
       <div className="water-level-monitor">
       <div className="gauge">
         <svg viewBox="0 0 36 36" className="circular-chart blue">
-           <path
+           {/* <path
               className="waterGauge-bg"
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-            />
-            <path
+            /> */}
+            {/* <path
               className={`gauge-fill ${
                 value < safetyLevel ? "critical" : ""
               }`}
               strokeDasharray={`${value}, 100`}
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-            />
+            /> */}
             <text x="18" y="20.35" className="percentage">
-            {`${value}%`}
+            {`${safetyLevel}`}
             </text>
+            {/* <text x="18" y="20.35" className="percentage">
+            {`${value}%`}
+            </text> */}
           </svg>
         </div>
 
-        {/* <div id="notification-bar" className={`notification-bar ${notification.color}`}>
-          {notification.message}
-        </div> */}
+       
         <p className="purityGauge-label">Water Purity Percentage</p>
       </div>
     </>
