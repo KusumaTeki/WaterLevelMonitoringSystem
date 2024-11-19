@@ -41,7 +41,6 @@
 // });
 
 // module.exports = { sendEmail };
-
 const expressAsyncHandler = require("express-async-handler");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
@@ -57,80 +56,34 @@ let transporter = nodemailer.createTransport({
   },
 });
 
-// Helper function to send emails
+// Helper function to send a single consolidated email
 const sendEmail = expressAsyncHandler(async (req, res) => {
   const { email, subject, message } = req.body;
 
-  var mailOptions = {
+  // Ensure message is not empty
+  if (!message || !message.trim()) {
+    return res.status(400).json({ message: "Message cannot be empty." });
+  }
+
+  const mailOptions = {
     from: process.env.SMTP_MAIL,
     to: email,
     subject: subject,
-    text: message,
+    text: message, // Consolidated message
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
-      console.log("Error sending email: ", error);
-      res.status(500).json({ message: "Failed to send email." });
+      console.error("Error sending email:", error);
+      return res.status(500).json({ message: "Failed to send email." });
     } else {
-      console.log("Email sent successfully!");
-      res.status(200).json({ message: "Email sent successfully!" });
+      console.log(`Email sent successfully to ${email} with subject "${subject}".`);
+      return res.status(200).json({ message: "Email sent successfully!" });
     }
   });
 });
 
-// // Email Case Handlers
-// const sendOverflowEmail = async () => {
-//   const emailData = {
-//     email: "user@example.com", // Replace with actual user email
-//     subject: "Water Overflow Alert",
-//     message: "The water level has exceeded the 90% mark, and the motor has been turned off to prevent overflow. Please check the water level.",
-//   };
-//   await sendEmail(emailData);
-// };
-
-// const sendUnderflowEmail = async () => {
-//   const emailData = {
-//     email: "user@example.com", // Replace with actual user email
-//     subject: "Water Underflow Alert",
-//     message: "The water level has fallen below the threshold, and the motor has been turned on to refill the container. Please monitor the water level.",
-//   };
-//   await sendEmail(emailData);
-// };
-
-// const sendTdsAlertEmail = async (tdsLevel) => {
-//   const emailData = {
-//     email: "user@example.com", // Replace with actual user email
-//     subject: "High TDS Level Alert",
-//     message: `The water TDS level has reached ${tdsLevel} ppm. Please check the water quality.`,
-//   };
-//   await sendEmail(emailData);
-// };
-
-// const sendFlowLevelEmail = async (flowLevel) => {
-//   const emailData = {
-//     email: "user@example.com", // Replace with actual user email
-//     subject: "Water Flow Alert",
-//     message: `The water flow rate is currently ${flowLevel} L/min. Please check if the flow rate is normal.`,
-//   };
-//   await sendEmail(emailData);
-// };
-
-// const sendDrySourceEmail = async () => {
-//   const emailData = {
-//     email: "user@example.com", // Replace with actual user email
-//     subject: "Water Source Dry Alert",
-//     message: "The system has detected no flow of water. Please check the water source and refill it.",
-//   };
-//   await sendEmail(emailData);
-// };
-
 // Exporting handlers
 module.exports = {
   sendEmail,
-  // sendOverflowEmail,
-  // sendUnderflowEmail,
-  // sendTdsAlertEmail,
-  // sendFlowLevelEmail,
-  // sendDrySourceEmail,
 };

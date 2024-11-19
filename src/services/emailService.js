@@ -1,28 +1,28 @@
 const baseUrl = "http://localhost:8000";
 
-export const sendEmail = async (subject,message) => {
-  // Replace these with actual values or keep them static as placeholders
+export const sendEmail = async (subject, message) => {
   let dataSend = {
-    // email: "jayasriteki@gmail.com", // Replace with actual email
-    email: "dewahov390@nozamas.com", // Replace with actual email
-    subject: subject, // Replace with actual subject
-    message: message, // Replace with actual message
-    // body: `The water level has exceeded 90% (${value} cm out of ${maxDepth} cm), and the motor has been turned off.`,
-
+    // email: "jayasriteki@gmail.com",
+    email: "tefihev813@kazvi.com",
+    subject: subject,
+    message: message,
   };
+  try {
+    const response = await fetch(`${baseUrl}/email/sendEmail`, {
+      method: "POST",
+      body: JSON.stringify(dataSend),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
 
-  const res = await fetch(`${baseUrl}/email/sendEmail`, {
-    method: "POST",
-    body: JSON.stringify(dataSend),
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (res.ok) {
-    alert("Email sent successfully!");
-  } else {
-    alert("Failed to send email.");
+    if (!response.ok) {
+      throw new Error("Failed to send email");
+    }
+    alert("Issues found Email is sent!!")
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.log(error);
   }
 };

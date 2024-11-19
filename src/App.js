@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./css/style.css";
+import "./css/gauge.css";
 import WaterLevelGauge from "./components/WaterLevelGauge";
 import WaterFlowGauge from "./components/WaterFlowGauge";
 import PurityGauge from "./components/PurityGauge"; // Assuming this displays the purity and safety level
-import FlowRateGauge from "./components/FlowRateGauge";
+// import FlowRateGauge from "./components/FlowRateGauge";
 import MotorControlButton from "./components/MotorControlButton";
 import { database } from "./components/firebase"; // Firebase import
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, set } from "firebase/database";
 import Canvas from "./components/Canvas";
+import { sendEmail } from "./services/emailService";
 
 const App = () => {
   const [sensorData, setSensorData] = useState({
@@ -26,6 +28,132 @@ const App = () => {
     if (ppm <= 1000) return "Poor";
     return "Unsafe";
   };
+
+
+  // Function to round values to 2 decimals
+  const roundToTwoDecimals = (value) => {
+    return parseFloat(value).toFixed(2);
+  };
+  // const minDepth = 0;
+  const maxDepth = 9;
+  const waterLevel = maxDepth - sensorData.depth;
+  const waterLevelPercentage = Math.min(100, (waterLevel/maxDepth)*100).toFixed(2);
+
+  // const waterLevelPercentage = Math.min(100, (((waterLevel -minDepth)*100)/(maxDepth-minDepth)));
+  
+  const maxFlowRate = 30; // Maximum flow rate (arbitrary example)
+  const flowLevel = sensorData.flow;
+  const waterFlowPercentage = Math.min(100, (flowLevel *100 / maxFlowRate)).toFixed(2);
+
+  const minTDS = 0;
+  const maxTDS = 1200;
+  const purityLevel = sensorData.purity;
+
+  // Calculate purity percentage
+  const purityLevelPercentage = Math.max(
+    0,
+    Math.min(((maxTDS - purityLevel) / (maxTDS - minTDS)) * 100, 100)
+  ).toFixed(2); // Clamp to [0, 100] and round to 2 decimal places
+
+
+// const monitorConditions = (waterLevelPercentage, waterFlowPercentage, purityLevelPercentage) => {
+//   console.log("Water Level Percentage:", waterLevelPercentage);
+//   console.log("Water Flow Percentage:", waterFlowPercentage);
+//   console.log("Purity Level Percentage:", purityLevelPercentage);
+
+//   const controlMotor = (status) => {
+//     const newStatus = status === "on" ? 1 : 0;
+//     set(ref(database, "main/valve"), newStatus);
+//     console.log(`Motor status set to: ${status}`);
+//   };
+
+//   const triggeredConditions = [];
+
+//   // Water level conditions
+//   if (waterLevelPercentage >= 90) {
+//     triggeredConditions.push("Water level is above 90%. The motor will be turned off.");
+//     controlMotor("off");
+//   } else if (waterLevelPercentage <= 10) {
+//     triggeredConditions.push("Water level is below 10%. The motor will be turned on.");
+//     controlMotor("on");
+//   }
+
+//   // Water flow conditions
+//   if (waterFlowPercentage >= 90) {
+//     triggeredConditions.push("Water flow is above 90%. The motor will be turned off.");
+//     controlMotor("off");
+//   } else if (waterFlowPercentage <= 10) {
+//     triggeredConditions.push("Water flow is below 10%. Please check the system.");
+//   }
+
+//   // Water purity conditions
+//   if (purityLevelPercentage < 50) {
+//     triggeredConditions.push("Water purity is below 50%. Please check the water quality.");
+//   }
+
+//   // Send email if any issues are detected
+//   if (triggeredConditions.length > 0) {
+//     const subject = "Alert: Issues Detected in Water Monitoring System";
+//     const message = triggeredConditions.join("\n");
+//     sendEmail(subject, message);
+//     console.log("Email sent with the following details:");
+//     console.log("Subject:", subject);
+//     console.log("Message:", message);
+//   } else {
+//     console.log("No issues detected!");
+//   }
+// };
+
+
+const monitorConditions = (waterLevelPercentage, waterFlowPercentage, purityLevelPercentage) => {
+  console.log("Water Level Percentage:", waterLevelPercentage);
+  console.log("Water Flow Percentage:", waterFlowPercentage);
+  console.log("Purity Level Percentage:", purityLevelPercentage);
+
+  const controlMotor = (status) => {
+    const newStatus = status === "on" ? 1 : 0;
+    set(ref(database, "main/valve"), newStatus);
+    console.log(`Motor status set to: ${status}`);
+  };
+
+  const triggeredConditions = [];
+
+  // Water level conditions
+  if (waterLevelPercentage >= 90) {
+    triggeredConditions.push("Water level is above 90%. The motor will be turned off.");
+    controlMotor("off");
+  } else if (waterLevelPercentage <= 10) {
+    triggeredConditions.push("Water level is below 10%. The motor will be turned on.");
+    controlMotor("on");
+  }
+
+  // Water flow conditions
+  if (waterFlowPercentage >= 90) {
+    triggeredConditions.push("Water flow is above 90%. The motor will be turned off.");
+    controlMotor("off");
+  } else if (waterFlowPercentage <= 10) {
+    triggeredConditions.push("Water flow is below 10%. Please check the system.");
+  }
+
+  // Water purity conditions
+  if (purityLevelPercentage < 50) {
+    triggeredConditions.push("Water purity is below 50%. Please check the water quality.");
+  }
+
+  // Trigger email if any condition is met
+  if (triggeredConditions.length > 0) {
+    const subject = "Alert: Issues Detected in Water Monitoring System";
+    const message = triggeredConditions.join("\n");
+    sendEmail(subject, message);
+    console.log("Email sent with subject:", subject, "and message:", message);
+  } else {
+    console.log("No issues detected!");
+  }
+};
+
+
+
+
 
   // Fetch data from Firebase in real time
   useEffect(() => {
@@ -66,12 +194,32 @@ const App = () => {
     };
   }, []);
 
-  // Function to round values to 2 decimals
-  const roundToTwoDecimals = (value) => {
-    return parseFloat(value).toFixed(2);
-  };
-  const totalDepth = 9;
-  const waterLevel = totalDepth - sensorData.depth;
+  // useEffect(() => {
+  //   monitorConditions(sensorData);
+  // }, [sensorData]);
+ 
+  
+  const previousSensorData = useRef(sensorData);
+  useEffect(() => {
+    const hasChanged = JSON.stringify(sensorData) !== JSON.stringify(previousSensorData.current);
+    if (hasChanged) {
+      const waterLevelPercentage = Math.min(100, ((maxDepth - sensorData.depth) / maxDepth) * 100).toFixed(2);
+      const waterFlowPercentage = Math.min(100, (sensorData.flow * 100 / maxFlowRate)).toFixed(2);
+      const purityLevelPercentage = Math.max(
+        0,
+        Math.min(((maxTDS - sensorData.purity) / (maxTDS - minTDS)) * 100, 100)
+      ).toFixed(2);
+  
+      monitorConditions(waterLevelPercentage, waterFlowPercentage, purityLevelPercentage);
+      previousSensorData.current = sensorData;
+    }
+  }, [sensorData]);
+  
+
+  
+  
+ 
+
 
   return (
     <>
@@ -109,19 +257,24 @@ const App = () => {
         <div className="container">
           <div className="levelBox">
             <h3>Water Level</h3>
-            <WaterLevelGauge value={roundToTwoDecimals(waterLevel)} />
+            <WaterLevelGauge value={waterLevelPercentage} />
             {/* <WaterLevelGauge value={roundToTwoDecimals(sensorData.depth)} /> */}
           </div>
           <div className="levelBox">
             <h3>Water Flow</h3>
-            <WaterFlowGauge value={roundToTwoDecimals(sensorData.flow)} />
+            <WaterFlowGauge value={waterFlowPercentage} />
+            {/* <WaterFlowGauge value={sensorData.flow.toFixed(2)} /> */}
           </div>
           <div className="levelBox">
             <h3>Water Purity</h3>
             <PurityGauge
-              value={roundToTwoDecimals(sensorData.purity)}
+              value={purityLevelPercentage}
               safetyLevel={sensorData.safetyLevel}
             />{" "}
+            {/* <PurityGauge
+              value={roundToTwoDecimals(sensorData.purity)}
+              safetyLevel={sensorData.safetyLevel}
+            />{" "} */}
             {/* Pass rounded purity */}
           </div>
           {/* <div className="levelBox">
