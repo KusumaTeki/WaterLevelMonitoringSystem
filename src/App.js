@@ -13,8 +13,8 @@ import { sendEmail } from "./services/emailService";
 
 const App = () => {
   const [sensorData, setSensorData] = useState({
-    depth: 0,
-    flow: 0,
+    depth: 4,
+    flow: 15,
     purity: 10, // Initialize with a default value (PPM)
     rate: 0,
     motorStatus: 1,
@@ -56,53 +56,33 @@ const App = () => {
   ).toFixed(2); // Clamp to [0, 100] and round to 2 decimal places
 
 
-// const monitorConditions = (waterLevelPercentage, waterFlowPercentage, purityLevelPercentage) => {
-//   console.log("Water Level Percentage:", waterLevelPercentage);
-//   console.log("Water Flow Percentage:", waterFlowPercentage);
-//   console.log("Purity Level Percentage:", purityLevelPercentage);
+  const [lastSentConditions, setLastSentConditions] = useState([]);
 
-//   const controlMotor = (status) => {
-//     const newStatus = status === "on" ? 1 : 0;
-//     set(ref(database, "main/valve"), newStatus);
-//     console.log(`Motor status set to: ${status}`);
-//   };
+  const [allDataLoaded, setAllDataLoaded] = useState(false);
 
-//   const triggeredConditions = [];
+useEffect(() => {
+  const dataIsComplete =
+    waterLevelPercentage !== undefined &&
+    waterFlowPercentage !== undefined &&
+    purityLevelPercentage !== undefined;
 
-//   // Water level conditions
-//   if (waterLevelPercentage >= 90) {
-//     triggeredConditions.push("Water level is above 90%. The motor will be turned off.");
-//     controlMotor("off");
-//   } else if (waterLevelPercentage <= 10) {
-//     triggeredConditions.push("Water level is below 10%. The motor will be turned on.");
-//     controlMotor("on");
-//   }
+  setAllDataLoaded(dataIsComplete);
+}, [waterLevelPercentage, waterFlowPercentage, purityLevelPercentage]);
 
-//   // Water flow conditions
-//   if (waterFlowPercentage >= 90) {
-//     triggeredConditions.push("Water flow is above 90%. The motor will be turned off.");
-//     controlMotor("off");
-//   } else if (waterFlowPercentage <= 10) {
-//     triggeredConditions.push("Water flow is below 10%. Please check the system.");
-//   }
+useEffect(() => {
+  if (allDataLoaded) {
+    monitorConditions(waterLevelPercentage, waterFlowPercentage, purityLevelPercentage);
+  } else {
+    console.log("Waiting for all sensor data to load...");
+  }
+}, [allDataLoaded]);
 
-//   // Water purity conditions
-//   if (purityLevelPercentage < 50) {
-//     triggeredConditions.push("Water purity is below 50%. Please check the water quality.");
-//   }
+useEffect(() => {
+  console.log(`Motor status updated: ${sensorData.motorStatus ? "On" : "Off"}`);
+}, [sensorData.motorStatus]);
 
-//   // Send email if any issues are detected
-//   if (triggeredConditions.length > 0) {
-//     const subject = "Alert: Issues Detected in Water Monitoring System";
-//     const message = triggeredConditions.join("\n");
-//     sendEmail(subject, message);
-//     console.log("Email sent with the following details:");
-//     console.log("Subject:", subject);
-//     console.log("Message:", message);
-//   } else {
-//     console.log("No issues detected!");
-//   }
-// };
+
+  
 
 
 const monitorConditions = (waterLevelPercentage, waterFlowPercentage, purityLevelPercentage) => {
@@ -111,10 +91,15 @@ const monitorConditions = (waterLevelPercentage, waterFlowPercentage, purityLeve
   console.log("Purity Level Percentage:", purityLevelPercentage);
 
   const controlMotor = (status) => {
-    const newStatus = status === "on" ? 1 : 0;
-    set(ref(database, "main/valve"), newStatus);
-    console.log(`Motor status set to: ${status}`);
+    const desiredStatus = status === "on" ? 1 : 0;
+    if (sensorData.motorStatus !== desiredStatus) {
+      set(ref(database, "main/valve"), desiredStatus);
+      console.log(`Motor status set to: ${status}`);
+    } else {
+      console.log(`Motor already ${status}. No action taken.`);
+    }
   };
+  
 
   const triggeredConditions = [];
 
@@ -140,14 +125,23 @@ const monitorConditions = (waterLevelPercentage, waterFlowPercentage, purityLeve
     triggeredConditions.push("Water purity is below 50%. Please check the water quality.");
   }
 
-  // Trigger email if any condition is met
-  if (triggeredConditions.length > 0) {
+  
+  // Compare with previously sent conditions
+  const currentConditions = triggeredConditions.join("\n");
+  const lastConditions = lastSentConditions.join("\n");
+
+  if (currentConditions && currentConditions !== lastConditions) {
     const subject = "Alert: Issues Detected in Water Monitoring System";
-    const message = triggeredConditions.join("\n");
+    const message = currentConditions;
+
+    // Send email
     sendEmail(subject, message);
     console.log("Email sent with subject:", subject, "and message:", message);
+
+    // Update the last sent conditions
+    setLastSentConditions(triggeredConditions);
   } else {
-    console.log("No issues detected!");
+    console.log("No new issues detected!");
   }
 };
 
