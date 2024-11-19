@@ -3,7 +3,7 @@ const baseUrl = "http://localhost:8000";
 export const sendEmail = async (subject, message) => {
   let dataSend = {
     // email: "jayasriteki@gmail.com",
-    email: "jinar99620@kimasoft.com",
+    email: "kolewe7359@kazvi.com",
     subject: subject,
     message: message,
   };
